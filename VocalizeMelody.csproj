@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>VocalizeMelody</AssemblyName>
+    <RootNamespace>VocalizeMelody</RootNamespace>
+
+    <!-- 游戏安装目录（按需覆盖） -->
+    <Sts2Dir Condition="'$(Sts2Dir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</Sts2Dir>
+    <Sts2DataDir>$(Sts2Dir)\data_sts2_windows_x86_64</Sts2DataDir>
+    <ModsDir>$(Sts2Dir)\mods\VocalizeMelody</ModsDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(Sts2DataDir)\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(Sts2DataDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(Sts2DataDir)\sts2.dll')"
+           Text="找不到 sts2.dll，请设置 Sts2Dir 指向 Slay the Spire 2 安装目录。" />
+  </Target>
+
+  <!-- 构建后尽量自动部署；目录不可写时只警告，不影响构建 -->
+  <Target Name="CopyMod" AfterTargets="PostBuildEvent">
+    <MakeDir Directories="$(ModsDir)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsDir)" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\VocalizeMelody.json" DestinationFolder="$(ModsDir)" ContinueOnError="WarnAndContinue" />
+    <Message Text="已复制到 $(ModsDir)（若目录不可写请手动复制 bin\Release 产物）" Importance="high" />
+  </Target>
+</Project>

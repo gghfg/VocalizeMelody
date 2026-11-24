@@ -8,8 +8,8 @@ namespace VocalizeMelody;
 
 /// <summary>
 /// 判断“当前局内本地玩家是否为愚者”。只在愚者局内启用注入/改名。
-/// 卡牌优先按 Owner 判断（战斗/手牌/奖励实例），没有 Owner 时回退到局内玩家。
-/// 结果按 500ms 缓存，避免 get_Tags / get_Title 高频调用时反复查玩家。
+/// 卡牌优先按 Owner 判断（战斗/手牌/奖励实例）；canonical（模板）卡不能读 Owner，
+/// 直接回退到局内玩家判断。任何模型状态异常都不应影响 UI。
 /// </summary>
 internal static class FoolRunContext
 {
@@ -41,14 +41,32 @@ internal static class FoolRunContext
     }
 
     /// <summary>
-    /// 卡牌级判断：有 Owner 时以 Owner 的角色为准；否则（卡池/图鉴模板）用局内玩家。
+    /// 卡牌级判断：canonical 模板（如百科大全里的卡）不能访问 Owner，直接按局内判断；
+    /// 其它实例优先按 Owner 的角色，拿不到再回退局内判断。
     /// </summary>
     public static bool ActiveFor(CardModel card)
     {
-        var owner = card.Owner;
-        if (owner != null)
+        if (card == null)
         {
-            return owner.Character is Fool;
+            return false;
+        }
+
+        try
+        {
+            if (card.IsCanonical)
+            {
+                return Active;
+            }
+
+            var owner = card.Owner;
+            if (owner != null)
+            {
+                return owner.Character is Fool;
+            }
+        }
+        catch
+        {
+            // CanonicalModelException 等模型状态异常：回退到局内判断，绝不把异常抛给 UI。
         }
 
         return Active;

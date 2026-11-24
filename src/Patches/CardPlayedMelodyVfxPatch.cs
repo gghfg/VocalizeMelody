@@ -20,40 +20,40 @@ internal static class CardPlayedMelodyVfxPatch
     [HarmonyPostfix]
     private static void Postfix(AbstractModel __instance, PlayerChoiceContext choiceContext, CardPlay cardPlay)
     {
-        var card = cardPlay?.Card;
-        if (card == null || !ReferenceEquals(__instance, card))
-        {
-            return;
-        }
-
-        if (!FoolRunContext.ActiveFor(card))
-        {
-            return;
-        }
-
-        if (!MelodyTable.TryGet(card, out var entry))
-        {
-            return;
-        }
-
-        var combat = CombatManager.Instance;
-        if (combat != null && combat.IsOverOrEnding)
-        {
-            return;
-        }
-
-        var creature = card.Owner?.Creature ?? cardPlay?.Player?.Creature;
-        if (creature is null)
-        {
-            return;
-        }
-
         try
         {
+            var card = cardPlay?.Card;
+            if (card == null || !ReferenceEquals(__instance, card))
+            {
+                return;
+            }
+
+            if (!FoolRunContext.ActiveFor(card))
+            {
+                return;
+            }
+
+            if (!MelodyTable.TryGet(card, out var entry))
+            {
+                return;
+            }
+
+            var combat = CombatManager.Instance;
+            if (combat != null && combat.IsOverOrEnding)
+            {
+                return;
+            }
+
+            var creature = card.Owner?.Creature ?? cardPlay?.Player?.Creature;
+            if (creature is null)
+            {
+                return;
+            }
+
             foreach (var tag in entry.Tags)
             {
                 // 与原版 Fool 卡一致：每个旋律 tag 播一次音符特效。
-                _ = MelodyCmd.PlayMelodyVfx(creature!, tag);
+                _ = MelodyCmd.PlayMelodyVfx(creature, tag);
             }
         }
         catch (Exception ex)

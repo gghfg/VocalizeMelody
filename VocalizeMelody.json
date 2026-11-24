@@ -3,7 +3,7 @@
   "name": "假如发声就有旋律？！",
   "author": "brooks",
   "description": "让卡名中带「哇 / 啾 / 叽」同音字的 114 张卡牌获得对应旋律并触发联动。仅在愚者局内生效。",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "min_game_version": "0.113.1",
   "has_pck": false,
   "has_dll": true,

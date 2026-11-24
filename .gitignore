@@ -1,0 +1,17 @@
+# 构建产物
+bin/
+obj/
+
+# 发布包
+dist/
+release/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
